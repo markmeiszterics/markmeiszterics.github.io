@@ -1,0 +1,887 @@
+<style>
+			@font-face {
+				font-family: "OpenSans-Local";
+				src: url('fonts/OpenSans-Regular.ttf');
+			}
+			html, body {
+				height: 100%;
+				margin: 0;
+				font-family: 'Open Sans', 'OpenSans-Local';
+				font-style: normal;
+			}
+			input[type="form"] {
+				font-family: inherit;
+			}
+			button {
+				font-family: inherit;
+			}
+			select {
+				font-family: inherit;
+			}
+			.visible_flex {
+				display: flex;
+			}
+			.hidden {
+				display: none;
+			}
+			.inactive {
+				filter: brightness(2.5) grayscale(1) opacity(.3);
+				cursor: not-allowed;
+				margin-top: 2px;
+				margin-bottom: 3px;
+			}
+			.active {
+				cursor: pointer;
+			}
+			.addwaypoint {
+				left: -1px;
+			}		
+			.addwaypoint:hover {
+				-webkit-filter: brightness(2.5) grayscale(1) opacity(.6);
+				   -moz-filter: brightness(2.5) grayscale(1) opacity(.6);
+						filter: brightness(2.5) grayscale(1) opacity(.6);
+			}	
+			.reversewaypoints:hover {
+				-webkit-filter: brightness(2.5) grayscale(1) opacity(.6);
+				   -moz-filter: brightness(2.5) grayscale(1) opacity(.6);
+						filter: brightness(2.5) grayscale(1) opacity(.6);
+			}
+            #uzenetablak {
+				position: fixed;
+				left: 50%;
+				max-width: 400px;
+				transform: translate(-50%, 0);
+				bottom: 20px;
+				border-radius: 4px;
+				box-shadow: 5px 0px 5px #00000055;
+				backdrop-filter: blur(3px);
+				-webkit-backdrop-filter: blur(3px);
+				display: none;
+				z-index: 2000;
+				opacity: 0;
+				transition: opacity 0.6s;
+            }
+			#uzenetszoveg {
+				font-size: 12px;
+				text-align: center;
+			}
+			#uzenet_szinessav {
+				width: 100%;
+				height: 4px;
+				bottom: 0px;
+			}
+			.uzenet_error {
+				background-color: #ffe3e0AA;
+			}
+			.uzenet_warning {
+				background-color: #FFE5C8AA;
+			}
+			.uzenet_success {
+				background-color: #b4eacdAA;
+			}
+			.uzenet_szinessav_error {
+				background-color: #ff4536;
+			}
+			.uzenet_szinessav_warning {
+				background-color: #ffa825;
+			}
+			.uzenet_szinessav_success {
+				background-color: #00a452;
+			}
+			#btnClose {
+				margin-left: 6px;
+			}
+			.currenttool_popup {
+				position: absolute;
+				display: flex;
+				flex-direction: column;
+				opacity: 1;
+				top: 20px;
+				left: 50%;
+				transform: translate(-50%, 0);
+				padding: 5px;
+				cursor: pointer;
+				border-radius: 3px;
+				background: #FFFFFFDD;
+				z-index: 1000;
+				box-shadow: 0px 0px 7px #000000CC;
+			}
+			@media (max-width: 550px) {
+				.currenttool_popup {
+					top: 45px;					
+				}
+			}
+			@media (min-width: 550px) and (max-width: 1029px) {
+				.currenttool_popup_closedsb {
+					left: 520px;	
+				}
+			}
+			.opacity0 {
+				opacity: 0;
+			}
+			#lebego_start_ablak {
+				position: absolute;
+				display: flex;
+				flex-direction: column;
+				top: 20px;
+				width: 400px;
+				border-radius: 3px;
+				background: #FFFFFFDD;
+				z-index: 1000;
+				box-shadow: 0px 0px 7px #000000CC;
+				backdrop-filter: blur(3px);
+				-webkit-backdrop-filter: blur(3px);
+			}
+			.lebego_start_ablak_hidden {
+				left: 466px;
+				opacity: 0;
+				transition: left 0.2s ease-out;
+				transition: opacity 0.4s ease-out;
+			}
+			.lebego_start_ablak_visible {
+				display: block;
+				left: 20px;
+				opacity: 1;
+				transition: left 0.2s ease-out;
+				transition: opacity 0.8s ease-out;
+			}
+			
+            #sidebar {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				height: 100%;
+				width: 430px;
+				background: #F8F8F8;
+				overflow-x: auto;
+				box-shadow: 5px 0px 5px #00000055;
+				z-index: 1000;
+            }
+            .sidebar_openclosebox {
+				position: absolute;
+				top: 50%;
+				left: 4px;
+				width: 23px;
+				transform: translate(0, -50%); /* X: 0, Y: a div magassaganek felet vissza hogy kozepen legyen */
+				height: 50px;
+				border-width: 5px;
+				border-radius: 3px;
+				background-color: #FFFFFF;
+				box-shadow: 0px 0px 7px #000000CC;
+				z-index: 1000;
+            }
+			.sidebar_openclosebox:hover {
+				background-color: #EEEEEE;
+			}
+			#sidebar_nyitogomb {
+				height: 100%;
+				width: 100%;
+				z-index: 1000;
+			}
+			.sidebar_closed {
+				background: url(icons/chevron_right_black_24dp.svg) no-repeat center; 
+				background-color: transparent;
+				border: none;
+				cursor: pointer; 
+			}
+			.sidebar_opened {
+				background: url(icons/chevron_left_black_24dp.svg) no-repeat center; 
+				background-color: transparent;
+				border: none;
+				cursor: pointer; 
+			}
+			#sidebar_top {
+				margin: 8px 10px 10px 5px;
+			}
+			#sidebar_directions, #sidebar_elevprofile, #isoch_resultstable_div {
+				margin: 5px 10px;
+				min-height: 25px; 			/* ideiglenes */
+				justify-content: center; 	/* ideiglenes */
+				align-items: center; 		/* ideiglenes */
+			}
+			#sidebar_bottom {
+				width: 100%;
+				margin-bottom: 10px;
+				bottom: 0px;
+				justify-content: center;
+			}
+			#route_profile_selector {
+				height: 25px;
+			}
+			#sidebar_results {
+				margin-left: 10px;
+				margin-right: 10px;
+			}
+			#mapdiv {
+				position: absolute;
+				left: 0px;
+				right: 0px;
+				top: 0px;
+				bottom: 0px;
+				z-index: 1;
+				transition: left 0.2s;
+			}
+			.leaflet-control-attribution, .leaflet-control-scale {
+				box-shadow: 0px 0px 5px rgb(0 0 0 / 65%);
+			}
+			
+			#navi_params {
+				display: none;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				grid-template-areas:
+					'header1Area header2Area'
+					'param1Area param2Area'
+					'param3Area param4Area'
+					'param5Area param6Area'
+					'param7Area param8Area'
+					'param9Area param9Area';
+				margin: 0 0 2px 0;
+				align-content: start;
+				column-gap: 7px;
+				row-gap: 2px;
+				border: none;
+				width: 100%;
+				font-weight: 400;
+				font-size: 14px;
+				color: #202020;
+				background-color: #ffffff00;
+			}
+
+			#header1Param { 
+				grid-area: header1Area;
+				margin-left: 10px;
+				justify-content: center;
+			}
+			#header2Param { 
+				grid-area: header2Area;
+				margin-right: 10px; 
+			}
+			#param1 { 
+				grid-area: param1Area;
+				margin-left: 10px;
+			}
+			#param2 { 
+				grid-area: param2Area;
+				margin-right: 10px; 
+			}
+			#param3 { 
+				grid-area: param3Area;
+				margin-left: 10px;
+			}
+			#param4 { 
+				grid-area: param4Area;
+				margin-right: 10px; 
+			}
+			#param5 { 
+				grid-area: param5Area;
+				margin-left: 10px;
+			}
+			#param6 { 
+				grid-area: param6Area;
+				margin-right: 10px; 
+			}
+			#param7 {
+				grid-area: param7Area;
+				margin-left: 10px; 
+			}
+			#param8 {
+				grid-area: param8Area; 
+				margin-right: 10px; 
+			}
+			#param9 {
+				grid-area: param9Area; 
+			}
+			
+			.preference {
+				margin-left: 7px;
+			}
+			
+			.headergridbox {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				height: 20px;
+				font-size: 14px;
+			}
+			.headerwidegridbox {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				height: 20px;
+				font-size: 14px;
+				margin-left: 10px; 
+				margin-right: 10px; 
+			}
+			.paramgridbox {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				height: 20px;
+			}
+			.paramwidegridbox {
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+				align-items: center;
+				height: 20px;
+				margin-left: 10px; 
+				margin-right: 10px; 
+			}
+			
+			#isoch_params {
+				display: none;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				grid-template-areas:
+					'iheader1Area iheader1Area'
+					'iparam1Area iparam2Area'
+					'iparam3Area iparam4Area'
+					'iparam5Area iparam6Area'
+					'iparam7Area iparam8Area';
+				margin: 0 0 2px 0;
+				align-content: start;
+				column-gap: 2px;
+				row-gap: 6px;
+				border: none;
+				width: 100%;
+				font-weight: 400;
+				font-size: 14px;
+				color: #202020;
+				background-color: #ffffff00;
+			}
+
+			#iheader1Param { 
+				grid-area: iheader1Area;
+				justify-content: center;
+			}
+			#iparam1 { 
+				grid-area: iparam1Area;
+				margin-left: 10px;
+			}
+			#iparam2 { 
+				grid-area: iparam2Area;
+				margin-right: 10px;
+				justify-content: right;
+			}
+			#iparam3 { 
+				grid-area: iparam3Area;
+				margin-left: 10px;
+			}
+			#iparam4 { 
+				grid-area: iparam4Area;
+				margin-right: 10px;
+				justify-content: right;
+			}
+			#iparam5 { 
+				grid-area: iparam5Area;
+				margin-left: 10px;
+			}
+			#iparam6 { 
+				grid-area: iparam6Area;
+				margin-right: 10px;
+				justify-content: right;
+			}
+			#iparam7 { 
+				grid-area: iparam7Area;
+				margin-left: 10px;
+			}
+			#iparam8 { 
+				grid-area: iparam8Area;
+				margin-right: 10px;
+			}
+			
+			.separator {
+				width: 100%;
+			}
+			
+			.results_container {
+				font-size: 14px;
+			}
+			.results_title {
+				font-size: 16px;
+				font-weight: bold;
+				margin-left: 5px;
+				margin-right: 5px;
+			}
+			.results_param {
+				font-weight: bold;
+			}
+			.results_value {
+				
+			}
+			
+			.ABfield {
+				transition: background-color 0.4s;
+				transition-timing-function: ease-out;
+				width: 100%;
+				height: 30px;
+				background-color: #ffffffff;
+				border: solid 1px;
+				border-radius: 3px;
+				margin: 0 5px 0 5px;
+				color: black;
+				font-size: 16px;
+				outline: none;
+				padding-left: 8px;
+				padding-bottom: 1px;			
+			}
+			
+			.ABfield_error {
+				background-color: #ffededff;
+				border: solid 2px;
+				border-color: #ff0000ff;
+				/* a vastagabb korvonal atmeretezi a divet es megmozdul, ezt kompenzalom a kovetkezokkel: */
+				height: 28px; 
+				padding-left: 7px;
+				padding-bottom: 1px;
+			}
+			
+			.ABfield:focus { 
+				border: solid 2px;
+				border-color: #3333FF;
+				/* a vastagabb korvonal atmeretezi a divet es megmozdul, ezt kompenzalom a kovetkezokkel: */
+				height: 28px; 
+				padding-left: 7px;
+				padding-bottom: 1px;
+			}
+			
+			/* regi
+			.route_profile_img {
+				height: 30px;
+			}
+			.route_profile_entry {
+				margin-top: 5px;
+			} 
+			*/
+			
+			#route_profile_wrapperdiv {
+				min-width: 132px;
+				max-width: 100%;
+			}
+			.selected_option_svg:hover, .selected_option_svg:focus {
+				filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+			}
+			
+			.route_profile_selector input{
+				margin: 0;
+				padding: 0;
+				-webkit-appearance: none;
+				   -moz-appearance: none;
+						appearance: none;
+			}		
+			.route_profile_selector_2 input{
+				margin: 0;
+				padding: 0;
+				-webkit-appearance: none;
+				   -moz-appearance: none;
+						appearance: none;
+			}		
+			.car {background-image:url(icons/directions_car_black_24dp.svg);}
+			.bike {background-image:url(icons/directions_bike_black_24dp.svg);}
+			.walk {background-image:url(icons/directions_walk_black_24dp.svg);}
+			.route_profile_selector_2 input:active +.route_profile, .route_profile_selector input:active +.route_profile {
+				opacity: 1;
+			}
+			.route_profile_selector_2 input:checked +.route_profile, .route_profile_selector input:checked +.route_profile {
+				-webkit-filter: none;
+				   -moz-filter: none;
+						filter: none;
+			}
+			.route_profile {
+				cursor: pointer;
+				background-size: contain;
+				background-repeat: no-repeat;
+				width: 28px;
+				height: 28px;
+				margin: 4px;
+				-webkit-transition: all 100ms ease-in;
+				   -moz-transition: all 100ms ease-in;
+						transition: all 100ms ease-in;
+				-webkit-filter: brightness(2.5) grayscale(1) opacity(.27);
+				   -moz-filter: brightness(2.5) grayscale(1) opacity(.27);
+						filter: brightness(2.5) grayscale(1) opacity(.27);
+			}
+			.route_profile:hover {
+				-webkit-filter: brightness(1.2) grayscale(.5) opacity(.6);
+				   -moz-filter: brightness(1.2) grayscale(.5) opacity(.6);
+						filter: brightness(1.2) grayscale(.5) opacity(.6);
+			}
+			
+			.attrib_content {
+				font-size: 11px;
+				text-align: center;
+			}
+			
+			
+			.itiner_tablazat_fejlecsor {
+				font-size: 13px;
+			}
+			.itiner_tablazat_sor {
+				font-size: 11px;
+			}
+			.itiner_tablazat_sor:hover {
+				background-color: #eeeeee;
+			}
+			.itiner_tablazat_cella {
+				border: 1px solid #dddddd;
+				height: 30px;
+				align-items: center;
+				padding: 0px 2px 0px 2px;
+			}
+			
+			/* nyithato sidebar lista elemek, interaktivan - 1. */
+			/* forrás: https://www.digitalocean.com/community/tutorials/css-collapsible */
+			
+			.wrap-collapsible {
+				margin-bottom: 1.2rem 0;
+				width: 100%;
+			}			
+			.toggle_collapsible_checkbox {
+				/* ne jelenjen meg az alap checkbox */
+				display: none;
+			}
+			.label-toggle {
+				display: block;
+				font-size: 1rem;
+				text-align: center;
+				padding: 2px;
+				color: #000000;
+				background: #E5E5E5;
+				cursor: pointer;
+				border-radius: 3px;
+				transition: all 0.25s ease-out;
+			}
+			.label-toggle:hover {
+				color: #AAAAAA;
+				background: #dedede;
+			}
+			.label-toggle::before {
+				/* haromszog ikon borderekbol */
+				content: ' ';
+				display: inline-block;
+				border-top: 5px solid transparent;
+				border-bottom: 5px solid transparent;
+				border-left: 5px solid currentColor;
+				vertical-align: middle;
+				margin-right: .7rem;
+				transform: translateY(-2px);
+				transition: transform .2s ease-out;
+			}
+			.toggle_collapsible_checkbox:checked + .label-toggle::before {
+				/* haromszog ikont forgatjuk */
+				transform: rotate(90deg) translateX(-3px);
+			}
+			.collapsible-content {
+				max-height: 0px;
+				overflow: hidden;
+				transition: max-height .25s ease-in-out;
+			}
+			.toggle_collapsible_checkbox:checked + .label-toggle + .collapsible-content {
+				max-height: 100vh;
+			}
+			.toggle_collapsible_checkbox:checked + .label-toggle {
+				border-bottom-right-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+			.collapsible-content .content-inner {
+				background: #F8F8F8;
+				padding: 5px 4px;
+			}
+			.content-inner {
+				overflow: auto;
+				max-height: 215px;
+			}
+			
+			/* nyithato sidebar lista elemek, interaktivan - 2. */
+			
+			.wrap-collapsible2 {
+				margin-bottom: 1.2rem 0;
+				width: 100%;
+			}			
+			.toggle_collapsible_checkbox2 {
+				/* ne jelenjen meg az alap checkbox */
+				display: none;
+			}
+			.label-toggle2 {
+				display: block;
+				font-size: 1rem;
+				text-align: center;
+				padding: 3px;
+				color: #000000;
+				background: #E5E5E5;
+				cursor: pointer;
+				border-radius: 3px;
+				transition: all 0.25s ease-out;
+			}
+			.label-toggle2:hover {
+				color: #AAAAAA;
+				background: #dedede;
+			}
+			.label-toggle2::before {
+				/* haromszog ikon borderekbol */
+				content: ' ';
+				display: inline-block;
+				border-top: 5px solid transparent;
+				border-bottom: 5px solid transparent;
+				border-left: 5px solid currentColor;
+				vertical-align: middle;
+				margin-right: .7rem;
+				transform: translateY(-2px);
+				transition: transform .2s ease-out;
+			}
+			.toggle_collapsible_checkbox2:checked + .label-toggle2::before {
+				/* haromszog ikont forgatjuk */
+				transform: rotate(90deg) translateX(-3px);
+			}
+			.collapsible-content2 {
+				max-height: 0px;
+				overflow: hidden;
+				transition: max-height .25s ease-in-out;
+			}
+			.toggle_collapsible_checkbox2:checked + .label-toggle2 + .collapsible-content2 {
+				max-height: 100vh;
+			}
+			.toggle_collapsible_checkbox2:checked + .label-toggle2 {
+				border-bottom-right-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+			.collapsible-content2 .content-inner2 {
+				background: #F8F8F8;
+				padding: 5px 4px;
+			}
+			
+			/* nyithato sidebar lista elemek, interaktivan - 3. */
+			
+			.wrap-collapsible3 {
+				margin-bottom: 1.2rem 0;
+				width: 100%;
+			}			
+			.toggle_collapsible_checkbox3 {
+				/* ne jelenjen meg az alap checkbox */
+				display: none;
+			}
+			.label-toggle3 {
+				display: block;
+				font-size: 1rem;
+				text-align: center;
+				padding: 3px;
+				color: #000000;
+				background: #E5E5E5;
+				cursor: pointer;
+				border-radius: 3px;
+				transition: all 0.25s ease-out;
+			}
+			.label-toggle3:hover {
+				color: #AAAAAA;
+				background: #dedede;
+			}
+			.label-toggle3::before {
+				/* haromszog ikon borderekbol */
+				content: ' ';
+				display: inline-block;
+				border-top: 5px solid transparent;
+				border-bottom: 5px solid transparent;
+				border-left: 5px solid currentColor;
+				vertical-align: middle;
+				margin-right: .7rem;
+				transform: translateY(-2px);
+				transition: transform .2s ease-out;
+			}
+			.toggle_collapsible_checkbox3:checked + .label-toggle3::before {
+				/* haromszog ikont forgatjuk */
+				transform: rotate(90deg) translateX(-3px);
+			}
+			.collapsible-content3 {
+				max-height: 0px;
+				overflow: hidden;
+				transition: max-height .25s ease-in-out;
+			}
+			.toggle_collapsible_checkbox3:checked + .label-toggle3 + .collapsible-content3 {
+				max-height: 100vh;
+			}
+			.toggle_collapsible_checkbox3:checked + .label-toggle3 {
+				border-bottom-right-radius: 0;
+				border-bottom-left-radius: 0;
+			}
+			.collapsible-content3 .content-inner3 {
+				background: #F8F8F8;
+				padding: 5px 4px;
+			}
+			.content-inner3 {
+				overflow: auto;
+				max-height: 345px;
+			}
+			
+			/* nyithato sidebar lista elemek vege */
+			
+			button.link { 
+				background: none; 
+				border: none; 
+				cursor: pointer;
+			}
+			
+			
+			
+			/* JS Tabs */
+			/* Forrás: https://www.w3schools.com/howto/howto_js_tabs.asp */
+			.tab {
+				/*overflow: hidden;*/
+				border-bottom: 1px solid #ddd;
+				background-color: #f1f1f1;
+			}
+			/* Style the buttons that are used to open the tab content */
+			.tab button {
+				background-color: inherit;
+				float: middle;
+				border: none;
+				outline: none;
+				cursor: pointer;
+				padding: 8px 16px;
+				transition: 0.3s;
+				width: 100%;
+			}
+			/* Change background color of buttons on hover */
+			.tab button:hover {
+				background-color: #dbeeff;
+			}
+			/* Create an active/current tablink class */
+			.tab button.active {
+				background-color: #aed9ff;
+				font-weight: bold;
+			}
+			/* Style the tab content */
+			.tabcontent {
+				display: none;
+				border-top: none;
+			}			
+			.tabcontent {
+				animation: fadeEffect 1s; /* Fading effect takes 1 second */
+			}
+			/* Go from zero to full opacity */
+			@keyframes fadeEffect {
+				from {opacity: 0;}
+				to {opacity: 1;}
+			}
+			
+			/* CSS Toggle Switch */
+			/* Forrás: https://www.w3schools.com/howto/howto_css_switch.asp */
+			.switch {
+			  position: relative;
+			  display: inline-block;
+			  width: 32px;
+			  height: 16px;
+			  margin-left: 5px;
+			  margin-right: 5px;
+			}
+			.switch input { 
+			  opacity: 0;
+			  width: 0;
+			  height: 0;
+			}
+			.slider {
+			  position: absolute;
+			  cursor: pointer;
+			  top: 0;
+			  left: 0;
+			  right: 0;
+			  bottom: 0;
+			  background-color: #2196F3;
+			  -webkit-transition: .4s;
+			  transition: .4s;
+			}
+			.slider:before {
+			  position: absolute;
+			  content: "";
+			  height: 10px;
+			  width: 10px;
+			  left: 2px;
+			  bottom: 3px;
+			  background-color: white;
+			  -webkit-transition: .4s;
+			  transition: .4s;
+			}
+			input:checked + .slider {
+			  background-color: #2196F3;
+			}
+			input:focus + .slider {
+			  box-shadow: 0 0 1px #2196F3;
+			}
+			input:checked + .slider:before {
+			  -webkit-transform: translateX(18px);
+			  -ms-transform: translateX(18px);
+			  transform: translateX(18px);
+			}
+			/* Rounded sliders */
+			.slider.round {
+			  border-radius: 34px;
+			}
+			.slider.round:before {
+			  border-radius: 50%;
+			}
+			
+			#loading_icon, #loading_icon2 {
+				transition: opacity 0.5s;
+				margin-left: 15px;
+				margin-top: 5px;
+			}
+			.loading_hidden {
+				opacity: 0%;
+			}
+			.rotate_anim {
+				animation: rotation 1.5s infinite linear;
+			}
+			@keyframes rotation {
+				from {
+					transform: rotate(0deg);
+				}
+				to {
+					transform: rotate(-359deg);
+				}
+			}
+			
+			/* Mobil-optimalizacio: */
+			@media (max-width: 550px) {
+				.leaflet-control-scale {
+					bottom: 15px;
+				}
+				#lebego_start_ablak {
+					position: absolute;
+					top: 0px;
+					left: 0px;
+					width: 100%;
+					border-radius: 0px;
+				}
+				.sidebar_openclosebox {
+					position: absolute;
+					left: 50% !important;
+					top: 120px;
+					width: 23px;
+					height: 55px;
+					transform: translate(-50%, 0) rotate(90deg); /* X: a div szelessegenek felet vissza hogy kozepen legyen, Y: 0 */
+				}
+				#sidebar {
+					height: 425px;
+					width: 100%;
+					touch-action: pan-y;
+					box-shadow: 0px 3px 5px #00000055;
+				}
+				#mapdiv {
+					left: 0px !important;
+				}
+			}
+			@media (min-width: 550px) {
+				#mapdiv {
+					top: 0px !important;
+				}
+			}
+			@media (max-width: 344px) {
+				.tabname {
+					display: none;
+				}
+			}
+			@media (orientation: landscape) and (max-height: 1080px) {
+				.sidebar_openclosebox {
+					top:  50% !important;
+				}
+			}
+		</style>
